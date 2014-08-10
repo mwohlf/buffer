@@ -33,19 +33,6 @@ public class WritePageFactory {
 		this.filesize = size;
 	}
 
-	private String filename(long timestamp, long index) {
-		return DATE_FORMAT.print(timestamp)
-				+ "-" + String.format("%02d", currentPageIndex)
-				+ PAGEFILE_POSTFIX;
-	}
-	
-	private String tempFilename(long timestamp, long index) {
-		return DATE_FORMAT.print(timestamp)
-				+ "-" + String.format("%02d", currentPageIndex)
-				+ FILENAME_TMP_POSTFIX;
-	}
-
-
 	public void initialize() {
 		if (!cacheDir.exists()) {
 			throw new CacheException("cache dir does not exist: '" + cacheDir + "'");
@@ -59,22 +46,26 @@ public class WritePageFactory {
 			@Override
 			public boolean accept(File dir, String name) {
 				return name.endsWith(PAGEFILE_POSTFIX);
-			}
-			
+			}		
 		});
 		if (files == null) {
 			throw new CacheException("IO Error opening cache directory, listFiles returns null "
 					+ " cacheDir is configured to '" + cacheDir + "'");
 		}
-		currentPageIndex = 1;
+		currentPageIndex = 0;
 		for (File file : files) {
 			currentPageIndex = Math.max(currentPageIndex, new ReadPage(file).getIndex());
+		}
+		if (currentPageIndex > 0) {
+			// remove the last page since it might be incomplete
+			files[files.length - 1].delete();
+			currentPageIndex --;
 		}
 	}
 	
 	// returns an already opened write page that is visible to readers
 	public WritePage create(long timestamp) {
-		assert currentPageIndex > 0: "page index not initialized";
+		assert currentPageIndex >= 0: "page index not initialized";
 		currentPageIndex++;
 		final File tmpfile = new File(cacheDir, tempFilename(timestamp, currentPageIndex));
 		final File file = new File(cacheDir, filename(timestamp, currentPageIndex));
@@ -88,4 +79,16 @@ public class WritePageFactory {
 		
 	}
 	
+	private String filename(long timestamp, long index) {
+		return DATE_FORMAT.print(timestamp)
+				+ "-" + String.format("%02d", currentPageIndex)
+				+ PAGEFILE_POSTFIX;
+	}
+	
+	private String tempFilename(long timestamp, long index) {
+		return DATE_FORMAT.print(timestamp)
+				+ "-" + String.format("%02d", currentPageIndex)
+				+ FILENAME_TMP_POSTFIX;
+	}
+
 }

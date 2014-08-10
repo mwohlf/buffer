@@ -80,9 +80,9 @@ public class WritePage {
             int offsetChunksize = writeBuffer.position();
             writeBuffer.putInt(0);  // will be overwritten
             writeBuffer.put(incoming);
-            writeBuffer.force();
+   //         writeBuffer.force();
             writeBuffer.putInt(offsetChunksize, chunksize);
-            writeBuffer.force();
+   //         writeBuffer.force();
         }
     }
 

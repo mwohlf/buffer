@@ -66,11 +66,14 @@ public class Buffer {
 					currentPage = nextPage;
 					currentPage.open();
 				}
+				/*
 				try {
 					Thread.sleep(1);  
 				} catch (InterruptedException ex) {
 					throw new CacheException(ex);
 				}
+				*/
+				Thread.yield();
 				result = currentPage.read();				
 			}
 			return result;
