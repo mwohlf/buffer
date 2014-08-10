@@ -63,17 +63,18 @@ public class Buffer {
 				if (currentPage.isReadComplete()) {
 					ReadPage nextPage = readPageFactory.getNextPage(currentPage);
 					currentPage.close();
+					readPageFactory.deletePage(currentPage);
 					currentPage = nextPage;
 					currentPage.open();
 				}
-				/*
+				
 				try {
 					Thread.sleep(1);  
 				} catch (InterruptedException ex) {
 					throw new CacheException(ex);
 				}
-				*/
-				Thread.yield();
+				
+				//Thread.yield();
 				result = currentPage.read();				
 			}
 			return result;

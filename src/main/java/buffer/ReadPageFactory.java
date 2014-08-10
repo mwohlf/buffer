@@ -87,6 +87,11 @@ public class ReadPageFactory {
 			lock.unlock();
 		}
 	}
+	
+	public void deletePage(ReadPage page) {
+		unregister(page);
+		page.delete();
+	}
 
 	public void initialize() {
 		if (!cacheDir.exists()) {
@@ -184,12 +189,6 @@ public class ReadPageFactory {
 					continue;
 				}
 				File file = new File(cacheDir, ((WatchEvent<Path>)event).context().toFile().getName());
-				if (event.kind() == ENTRY_DELETE) {
-					if (file.getName().endsWith(WritePageFactory.PAGEFILE_POSTFIX)) {
-						unregister(new ReadPage(file));
-					}
-					continue;
-				}
 				if (event.kind() == ENTRY_CREATE) {
 					if (file.getName().endsWith(WritePageFactory.PAGEFILE_POSTFIX)) {
 						register(new ReadPage(file));

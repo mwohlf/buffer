@@ -73,10 +73,14 @@ public class ReadPage {
 		}
         PageMetadata.Cleaner.clean(readBuffer);
         readBuffer = null;
+		return this;
+	}
+	
+	public void delete() {
+		cacheFile.delete();
         metaData.close();
         metaData = null;
         cacheFile = null;
-		return this;
 	}
 
 	private void initBuffer() {
